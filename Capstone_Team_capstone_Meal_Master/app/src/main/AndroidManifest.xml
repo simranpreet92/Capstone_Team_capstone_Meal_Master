@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.capstone_team_capstone_meal_master">
+    package="com.capstone_team_capstone_meal_master">
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -9,6 +11,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Capstone_Team_capstone_Meal_Master">
+        <activity android:name=".HomeActivity"></activity>
+        <activity android:name=".FoodActivity" />
+        <activity android:name=".SignUpActivity"></activity>
+        <activity android:name=".LoginActivity"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

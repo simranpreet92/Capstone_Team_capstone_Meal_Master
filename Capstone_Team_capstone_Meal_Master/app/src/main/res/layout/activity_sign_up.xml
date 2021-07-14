@@ -22,6 +22,7 @@
 <!--        android:layout_height="wrap_content"-->
 <!--        android:fontFamily="@font/poppins_regular"-->
 <!--        android:gravity="end"-->
+<!--        android:text="Login"-->
 <!--        android:textColor="@color/design_default_color_primary"-->
 <!--        android:textSize="10sp" />-->
 
