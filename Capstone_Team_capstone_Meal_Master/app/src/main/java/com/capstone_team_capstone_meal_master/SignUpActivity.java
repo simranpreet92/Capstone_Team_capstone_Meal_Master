@@ -43,7 +43,7 @@ public class SignUpActivity extends AppCompatActivity {
             Snackbar.make(findViewById(android.R.id.content), "Password should be greater than 6 characters", Snackbar.LENGTH_SHORT).show();
             return;
         }
-        if (!password.equalsIgnoreCase(confirmPassword)) {
+        if (!password.equals(confirmPassword)) {
             Snackbar.make(findViewById(android.R.id.content), "Passwords should be same", Snackbar.LENGTH_SHORT).show();
             return;
         }

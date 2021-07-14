@@ -86,8 +86,9 @@ public class CategoryFragment extends Fragment {
                                     List<DocumentSnapshot> documents = task.getResult().getDocuments();
                                     for (DocumentSnapshot mealSnapshot : documents) {
                                         Map<String, Object> mealSnapshotData = mealSnapshot.getData();
-                                        if (mealSnapshotData != null && mealSnapshotData.containsKey("category")
+                                        if (mealSnapshotData != null
                                                 && mealSnapshotData.containsKey("id")
+                                                && mealSnapshotData.containsKey("category")
                                                 && mealSnapshotData.containsKey("name")
                                                 && mealSnapshotData.containsKey("url")
                                                 && mealSnapshotData.containsKey("price")) {

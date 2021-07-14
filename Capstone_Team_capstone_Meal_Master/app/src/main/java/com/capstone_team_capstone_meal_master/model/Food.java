@@ -3,18 +3,21 @@ package com.capstone_team_capstone_meal_master.model;
 import java.io.Serializable;
 
 public class Food {
-    private String id, name, url, category;
+    private String category;
+    private String id, name, url;
+
     private double price;
    // private Category category;
 
 
 
     public Food(String category, String id, String name, String url, double price) {
+        this.category = category;
         this.id = id;
         this.name = name;
         this.url = url;
         this.price = price;
-        this.category = category;
+
     }
 
 
