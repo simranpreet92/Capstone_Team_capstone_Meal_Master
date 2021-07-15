@@ -32,6 +32,7 @@ public class HomeActivity extends AppCompatActivity {
         }
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         categoryFragment = CategoryFragment.newInstance();
+        categoryFragment =
         orderFragment = new OrderFragment();
         cartFragment = new CartFragment();
         setCurrentFragment(categoryFragment);
