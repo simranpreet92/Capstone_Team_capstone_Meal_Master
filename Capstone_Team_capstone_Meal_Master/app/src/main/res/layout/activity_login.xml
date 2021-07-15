@@ -8,6 +8,17 @@
     android:padding="20dp"
     tools:context=".LoginActivity">
 
+    <ProgressBar
+        android:id="@+id/pBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+    <LinearLayout
+        android:id="@+id/llContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone">
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -108,4 +119,5 @@
         android:onClick="continueAsGuest"
         android:layout_marginTop="10dp"
         android:text="Continue as Guest" />
+</LinearLayout>
 </LinearLayout>

@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -16,6 +18,8 @@ public class LoginActivity extends AppCompatActivity {
 
     EditText etEmail, etPassword;
     FirebaseAuth auth = FirebaseAuth.getInstance();
+    LinearLayout llContent;
+    ProgressBar pBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +27,20 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
+        llContent = findViewById(R.id.llContent);
+        pBar = findViewById(R.id.pBar);
+        toggleLoading(false);
+    }
+
+    private void toggleLoading(boolean isloading) {
+        if (isloading) {
+            llContent.setVisibility(View.GONE);
+            pBar.setVisibility(View.VISIBLE);
+        } else {
+            llContent.setVisibility(View.VISIBLE);
+            pBar.setVisibility(View.GONE);
+        }
+
     }
 
     public void continueAsGuest(View view) {
