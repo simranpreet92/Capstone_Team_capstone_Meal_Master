@@ -2,6 +2,7 @@ package com.capstone_team_capstone_meal_master;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ public class HomeActivity extends AppCompatActivity {
     FirebaseUser user;
     FrameLayout flContent;
     Fragment categoryFragment, orderFragment, cartFragment;
+    FragmentManager fragmentManager = getSupportFragmentManager();
     Button btLogout;
 
     @Override
@@ -30,6 +32,14 @@ public class HomeActivity extends AppCompatActivity {
         if (auth.getCurrentUser() == null) {
             btLogout.setVisibility(View.GONE);
         }
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        categoryFragment = CategoryFragment.newInstance();
+        orderFragment = new OrderFragment();
+        //cartFragment = CartFragment.newInstance(() -> setCurrentFragment(orderFragment));
+        fragmentManager.beginTransaction().add(R.id.flContent, cartFragment, "3").hide(cartFragment).commit();
+        fragmentManager.beginTransaction().add(R.id.flContent, orderFragment, "2").hide(orderFragment).commit();
+        fragmentManager.beginTransaction().add(R.id.flContent, categoryFragment, "1").commit();
+        //activeFragment = categoryFragment;
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         categoryFragment = CategoryFragment.newInstance();
 
