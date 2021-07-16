@@ -7,6 +7,22 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.capstone_team_capstone_meal_master.adapter.FoodAdapter;
+import com.capstone_team_capstone_meal_master.model.Cart;
+import com.capstone_team_capstone_meal_master.model.Food;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -15,36 +31,47 @@ import android.view.ViewGroup;
  */
 public class CartFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "capstone";
-    private static final String ARG_PARAM2 = "cart";
+    Cart cart;
+    List<Food> foodItems;
+    double total = 0, grandTotal = 0;
+    private final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
+    private FoodAdapter foodAdapter;
+    private final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    private final FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+    TextView tvItemTotal, tvGrandTotal, tvDiscountPoints, tvDiscount, tvNoItems;
+    Button btApplyPoints, btRemovePoints, btCheckout;
+    LinearLayout llDiscount, llContent, llOffers;
+    long points = 0;
+    boolean isPointsApplied = false;
+    RelativeLayout rlProgress;
+    ProgressBar pBar;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     public CartFragment() {
         // Required empty public constructor
     }
 
-    // TODO: Rename and change types and number of parameters
-    public static CartFragment newInstance(String param1, String param2) {
-        CartFragment fragment = new CartFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        cart = new Cart();
+        foodItems = new ArrayList<>();
+        foodAdapter = new FoodAdapter(getActivity(), foodItems, (position, mode) -> {
+            Food food = foodItems.get(position);
+            if (currentUser != null) {
+                String uuid = currentUser.getUid();
+                HashMap<String, Object> map = new HashMap<>();
+                if (mode == 1) {
+                    map.put(food.getId(), FieldValue.increment(1));
+                } else {
+                    map.put(food.getId(), FieldValue.increment(-1));
+                }
+                firebaseFirestore.collection("cart").document(uuid).set(map, SetOptions.merge());
+                updateLabels();
+            }
+        });
     }
 
     @Override
