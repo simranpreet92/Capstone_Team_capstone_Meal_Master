@@ -18,7 +18,7 @@ public class LoginActivity extends AppCompatActivity {
 
     EditText etEmail, etPassword;
     FirebaseAuth auth = FirebaseAuth.getInstance();
-   
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
