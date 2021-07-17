@@ -105,7 +105,6 @@ public class CategoryFragment extends Fragment {
             }
         });
         RecyclerView rvFoodItems = view.findViewById(R.id.rvFoodItems);
-        rvFoodItems = view.findViewById(R.id.rvFoodItems);
         rvFoodItems.setLayoutManager(new LinearLayoutManager(getActivity()));
         rvFoodItems.setAdapter(foodAdapter);
         return view;
