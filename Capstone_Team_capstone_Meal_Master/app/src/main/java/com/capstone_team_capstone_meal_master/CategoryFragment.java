@@ -26,10 +26,12 @@ import java.util.Map;
 public class CategoryFragment extends Fragment {
 
     private ArrayList<Food> foodItems;
+    private ArrayList<Food> filteredFoodItems;
     private FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     private RecyclerView rvFoodItems;
     private FoodAdapter foodAdapter;
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    TextView tvAvailableItems;
 
     public CategoryFragment() {
     }
@@ -42,16 +44,20 @@ public class CategoryFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         foodItems = new ArrayList<>();
-        foodAdapter = new FoodAdapter(getActivity(), foodItems, new onFoodItemClick() {
-            @Override
-            public void onItemClick(int position, int mode) {
-                Food food = foodItems.get(position);
-                String uuid = firebaseAuth.getUid();
-                if (uuid != null)
-                    if (mode == 1) {
-                        firebaseFirestore.collection("cart").document(uuid).update(food.getId(), FieldValue.increment(1));
-                    } else {
-                        firebaseFirestore.collection("cart").document(uuid).update(food.getId(), FieldValue.increment(-1));
+        filteredFoodItems = new ArrayList<>();
+        final FirebaseUser currentUser = firebaseAuth.getCurrrentUser();
+        foodAdapter = new FoodAdapter(getActivity(), filteredFoodItems, (position, mode) -> {
+            Food food = filteredFoodItems.get(position);
+            if (currentUser != null) {
+                String uuid = currentUser.getUid();
+                HashMap<String, Object> map = new HashMap<>();
+                if (mode == 1) {
+                    map.put(food.getId(), FieldValue.increment(1));
+                } else {
+                    map.put(food.getId(), FieldValue.increment(-1));
+                }
+                firebaseFirestore.collection("cart").document(uuid).set(map, SetOptions.merge());
+
                     }
             }
         });
