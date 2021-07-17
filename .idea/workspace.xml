@@ -27,9 +27,9 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="097bf1ac-55ce-41e8-87db-6f5e889469d1" name="Default Changelist" comment="modifications done">
+    <list default="true" id="097bf1ac-55ce-41e8-87db-6f5e889469d1" name="Default Changelist" comment="fetching data modifications">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Capstone_Team_capstone_Meal_Master/app/src/main/java/com/capstone_team_capstone_meal_master/CategoryFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/Capstone_Team_capstone_Meal_Master/app/src/main/java/com/capstone_team_capstone_meal_master/CategoryFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Capstone_Team_capstone_Meal_Master/app/src/main/res/layout/fragment_category.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Capstone_Team_capstone_Meal_Master/app/src/main/res/layout/fragment_category.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -134,7 +134,14 @@
       <option name="project" value="LOCAL" />
       <updated>1626513769756</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="fetching data modifications">
+      <created>1626514652273</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1626514652273</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -152,7 +159,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="minor code change" />
     <MESSAGE value="modifications done" />
-    <option name="LAST_COMMIT_MESSAGE" value="modifications done" />
+    <MESSAGE value="fetching data modifications" />
+    <option name="LAST_COMMIT_MESSAGE" value="fetching data modifications" />
   </component>
   <component name="WindowStateProjectService">
     <state x="268" y="26" width="1089" height="738" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1626444103984">
@@ -163,10 +171,10 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="635" y="109" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1626490777521" />
-    <state x="361" y="145" key="Vcs.Push.Dialog.v2" timestamp="1626513775798">
+    <state x="361" y="145" key="Vcs.Push.Dialog.v2" timestamp="1626514663395">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="361" y="145" key="Vcs.Push.Dialog.v2/0.0.1536.824@0.0.1536.824" timestamp="1626513775798" />
+    <state x="361" y="145" key="Vcs.Push.Dialog.v2/0.0.1536.824@0.0.1536.824" timestamp="1626514663395" />
     <state x="739" y="284" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1626443430136">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
