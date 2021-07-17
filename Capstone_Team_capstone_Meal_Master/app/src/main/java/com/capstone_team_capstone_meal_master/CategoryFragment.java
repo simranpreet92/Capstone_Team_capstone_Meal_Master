@@ -6,21 +6,31 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.capstone_team_capstone_meal_master.adapter.FoodAdapter;
 import com.capstone_team_capstone_meal_master.interfaces.onFoodItemClick;
 import com.capstone_team_capstone_meal_master.model.Food;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class CategoryFragment extends Fragment {
@@ -105,38 +115,18 @@ public class CategoryFragment extends Fragment {
 
         firebaseFirestore.collection("food").addSnapshotListener((value, error) -> {
             if (error != null) {
-                Log.d("MYMSG", error.getMessage());
                 return;
             }
 
             if (value != null) {
                 for (DocumentSnapshot ds : value.getDocuments()) {
-                    firebaseFirestore.collection("food")
-                            .get()
-                            .addOnCompleteListener(task -> {
-                                if (task.isSuccessful() && task.getResult() != null) {
-                                    List<DocumentSnapshot> documents = task.getResult().getDocuments();
-                                    for (DocumentSnapshot mealSnapshot : documents) {
-                                        Map<String, Object> mealSnapshotData = mealSnapshot.getData();
-                                        if (mealSnapshotData != null
-                                                && mealSnapshotData.containsKey("id")
-                                                && mealSnapshotData.containsKey("category")
-                                                && mealSnapshotData.containsKey("name")
-                                                && mealSnapshotData.containsKey("url")
-                                                && mealSnapshotData.containsKey("price")) {
-                                            Food food = new Food( (String) mealSnapshotData.get("category") ,
-                                                    (String) mealSnapshotData.get("id"),
-                                                    (String) mealSnapshotData.get("name"),
-                                                    (String) mealSnapshotData.get("url"),
-                                                    Double.parseDouble(String.valueOf(mealSnapshotData.get("price"))));
-
-                                            foodItems.add(food);
-                                            foodAdapter.notifyDataSetChanged();
-                                        }
-                                    }
-                                }
-                            });
+                    Food food = ds.toObject(Food.class);
+                    foodItems.add(food);
                 }
+                Collections.sort(foodItems, (f1, f2) -> f1.getCategory().compareTo(f2.getCategory()));
+                filteredFoodItems.addAll(foodItems);
+                foodAdapter.notifyDataSetChanged();
+                tvAvailableItems.setText(String.format(Locale.CANADA, "Displaying %d items", filteredFoodItems.size()));
 
             }
         });
