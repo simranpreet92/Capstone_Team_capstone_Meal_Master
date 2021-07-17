@@ -27,10 +27,9 @@ public class CategoryFragment extends Fragment {
 
     private ArrayList<Food> foodItems;
     private ArrayList<Food> filteredFoodItems;
-    private FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
-    private RecyclerView rvFoodItems;
+    private final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     private FoodAdapter foodAdapter;
-    private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    private final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     TextView tvAvailableItems;
 
     public CategoryFragment() {
@@ -57,8 +56,6 @@ public class CategoryFragment extends Fragment {
                     map.put(food.getId(), FieldValue.increment(-1));
                 }
                 firebaseFirestore.collection("cart").document(uuid).set(map, SetOptions.merge());
-
-                    }
             }
         });
         fetchCategoryData();
@@ -69,6 +66,35 @@ public class CategoryFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_category, container, false);
+        EditText etSearch = view.findViewById(R.id.etSearch);
+        tvAvailableItems = view.findViewById(R.id.tvAvailableItems);
+        etSearch.addTextChangedListener(new TextWatcher(){
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after){
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String textVisible = s.toString().trim().toLowerCase();
+                filteredFoodItems.clear();
+                for (Food f : foodItems) {
+                    if (textVisible.isEmpty() || f.getName().contains(textVisible)) {
+                        filteredFoodItems.add(f);
+                    }
+                }
+                if (filteredFoodItems.isEmpty())
+                    Toast.makeText(getContext(), "No Items to show", Toast.LENGTH_SHORT).show();
+                tvAvailableItems.setText(String.format(Locale.CANADA, "Displaying %d items", filteredFoodItems.size()));
+                foodAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        RecyclerView rvFoodItems = view.findViewById(R.id.rvFoodItems);
         rvFoodItems = view.findViewById(R.id.rvFoodItems);
         rvFoodItems.setLayoutManager(new LinearLayoutManager(getActivity()));
         rvFoodItems.setAdapter(foodAdapter);
