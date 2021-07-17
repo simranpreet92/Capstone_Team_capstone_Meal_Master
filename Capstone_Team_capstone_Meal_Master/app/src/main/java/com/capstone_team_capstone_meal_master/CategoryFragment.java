@@ -54,7 +54,7 @@ public class CategoryFragment extends Fragment {
         super.onCreate(savedInstanceState);
         foodItems = new ArrayList<>();
         filteredFoodItems = new ArrayList<>();
-        final FirebaseUser currentUser = firebaseAuth.getCurrrentUser();
+        final FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         foodAdapter = new FoodAdapter(getActivity(), filteredFoodItems, (position, mode) -> {
             Food food = filteredFoodItems.get(position);
             if (currentUser != null) {
