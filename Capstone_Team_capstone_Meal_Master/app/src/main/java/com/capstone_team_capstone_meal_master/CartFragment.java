@@ -18,17 +18,15 @@ import com.capstone_team_capstone_meal_master.model.Cart;
 import com.capstone_team_capstone_meal_master.model.Food;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link CartFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class CartFragment extends Fragment {
 
     Cart cart;
@@ -73,7 +71,9 @@ public class CartFragment extends Fragment {
             }
         });
     }
+    private void updateLabels() {
 
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
