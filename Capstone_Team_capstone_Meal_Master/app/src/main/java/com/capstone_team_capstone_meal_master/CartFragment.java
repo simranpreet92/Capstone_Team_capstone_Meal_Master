@@ -217,6 +217,11 @@ public class CartFragment extends Fragment {
     }
     public void showEmptyCart() {
 
+            pBar.setVisibility(View.GONE);
+            rlProgress.setVisibility(View.VISIBLE);
+            llContent.setVisibility(View.GONE);
+            tvNoItems.setVisibility(View.VISIBLE);
+
     }
 
 }
