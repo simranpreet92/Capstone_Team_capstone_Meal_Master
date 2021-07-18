@@ -126,4 +126,14 @@ public class CartFragment extends Fragment {
         fetchCartData();
         return view;
     }
+
+    private void toggleDiscount(boolean flag) {
+        if (flag) {
+            btRemovePoints.setVisibility(View.GONE);
+            btApplyPoints.setVisibility(View.GONE);
+            tvDiscountPoints.setText(R.string.no_points);
+        } else {
+            btApplyPoints.setVisibility(View.VISIBLE);
+        }
+    }
 }
