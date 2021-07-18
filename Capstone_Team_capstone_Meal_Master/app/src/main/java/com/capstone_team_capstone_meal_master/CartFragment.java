@@ -1,12 +1,16 @@
 package com.capstone_team_capstone_meal_master;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,12 +19,16 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.capstone_team_capstone_meal_master.adapter.FoodAdapter;
 import com.capstone_team_capstone_meal_master.model.Cart;
 import com.capstone_team_capstone_meal_master.model.Food;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -36,7 +44,6 @@ import java.util.Map;
 
 
 public class CartFragment extends Fragment {
-
     Cart cart;
     List<Food> foodItems;
     double total = 0, grandTotal = 0;
@@ -53,11 +60,14 @@ public class CartFragment extends Fragment {
     ProgressBar pBar;
 
 
-    public CartFragment() {
-        // Required empty public constructor
+
+    public CartFragment(onOrderPlaced listener) {
+        this.listener = listener;
     }
 
-
+    public static CartFragment newInstance(onOrderPlaced listener) {
+        return new CartFragment(listener);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -79,12 +89,11 @@ public class CartFragment extends Fragment {
             }
         });
     }
-    private void updateLabels() {
 
-    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_cart, container, false);
         tvGrandTotal = view.findViewById(R.id.tvGrandTotal);
         tvItemTotal = view.findViewById(R.id.tvTotal);
@@ -101,12 +110,7 @@ public class CartFragment extends Fragment {
         llOffers = view.findViewById(R.id.llOffers);
         btCheckout.setOnClickListener(v -> {
             long point = isPointsApplied ? points : 0;
-            PayPalPayment payment = new PayPalPayment(new BigDecimal(String.valueOf(grandTotal - point)), "USD", "New Order",
-                    PayPalPayment.PAYMENT_INTENT_SALE);
-            Intent intent = new Intent(getContext(), PaymentActivity.class);
-            intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, config);
-            intent.putExtra(PaymentActivity.EXTRA_PAYMENT, payment);
-            launcher.launch(intent);
+
         });
         btApplyPoints.setOnClickListener(v -> {
             isPointsApplied = true;
@@ -124,22 +128,15 @@ public class CartFragment extends Fragment {
         rvCart.setNestedScrollingEnabled(true);
         rvCart.setLayoutManager(new LinearLayoutManager(getActivity()));
         rvCart.setAdapter(foodAdapter);
-        config = new PayPalConfiguration()
-                .environment(PayPalConfiguration.ENVIRONMENT_SANDBOX)
-                .clientId(getString(R.string.paypal_key));
+
         fetchCartData();
         return view;
     }
 
     private void toggleDiscount(boolean flag) {
-        if (flag) {
-            btRemovePoints.setVisibility(View.GONE);
-            btApplyPoints.setVisibility(View.GONE);
-            tvDiscountPoints.setText(R.string.no_points);
-        } else {
-            btApplyPoints.setVisibility(View.VISIBLE);
-        }
+
     }
+
     private void updateLabels() {
         if (isPointsApplied) {
             tvDiscount.setText("-" + points);
@@ -215,13 +212,62 @@ public class CartFragment extends Fragment {
         }
 
     }
+
     public void showEmptyCart() {
-
-            pBar.setVisibility(View.GONE);
-            rlProgress.setVisibility(View.VISIBLE);
-            llContent.setVisibility(View.GONE);
-            tvNoItems.setVisibility(View.VISIBLE);
-
+        pBar.setVisibility(View.GONE);
+        rlProgress.setVisibility(View.VISIBLE);
+        llContent.setVisibility(View.GONE);
+        tvNoItems.setVisibility(View.VISIBLE);
     }
+
+    public void placeOrder(String paymentId) {
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        if (currentUser == null) return;
+        DocumentReference reference = firebaseFirestore.collection("order_id").document("id");
+        firebaseFirestore.runTransaction(transaction -> {
+            DocumentSnapshot snapshot = transaction.get(reference);
+            Map<String, Object> map = new HashMap<>();
+            int order_id = -1;
+            if (snapshot.exists()) {
+                order_id = Integer.parseInt(String.valueOf(snapshot.get("id"))) + 1;
+            } else {
+                order_id = 1;
+            }
+            map.put("id", order_id);
+            transaction.set(reference, map);
+            points = isPointsApplied ? points : 0;
+            Map<String, Integer> foodItems = new HashMap<>();
+            Map<Food, Integer> cartItems = cart.getCartItems();
+            for (Map.Entry<Food, Integer> entry : cartItems.entrySet()) {
+                foodItems.put(entry.getKey().getId(), entry.getValue());
+            }
+            Order order = new Order(isPointsApplied, points, total, grandTotal - points, order_id, Timestamp.now(), foodItems, currentUser.getUid(), "confirmed", paymentId);
+            transaction.set(firebaseFirestore.collection("order").document(), order);
+
+            if (!currentUser.isAnonymous()) {
+                map.clear();
+                double points_earned = Math.ceil((grandTotal - points) / 100.0);
+                map.put("points", FieldValue.increment(points_earned - points));
+                transaction.set(firebaseFirestore.collection("discount").document(currentUser.getUid()), map, SetOptions.merge());
+            }
+            return null;
+        }).addOnSuccessListener(o -> {
+
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+            builder.setTitle("Congrats");
+            builder.setMessage("Your Order has been placed successfully");
+            builder.setCancelable(false);
+            builder.setPositiveButton("Ok", (dialog, which) ->
+            {
+                firebaseFirestore.collection("cart").document(currentUser.getUid()).delete();
+                listener.onOrderPlaced();
+            });
+            builder.show();
+        }).addOnFailureListener(e -> {
+            Log.d("MYMSG", e.getMessage());
+            Toast.makeText(getContext(), "Unable to place an order.", Toast.LENGTH_SHORT).show();
+        });
+    }
+
 
 }
