@@ -48,9 +48,9 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
         Food food = foodItems.get(position);
         Glide.with(context).load(food.getUrl()).into(holder.imvFoodItem);
         holder.tvFoodItem.setText(food.getName());
-      /*  if (food.getCategory() != null)
-            holder.tvFoodCategory.setText(food.getCategory().getCategory());
-        holder.tvFoodPrice.setText(String.format(Locale.US, "%s %.1f", context.getString(R.string.dollar), food.getPrice()));*/
+        if (food.getCategory() != null)
+            holder.tvFoodCategory.setText(food.getCategory());
+        holder.tvFoodPrice.setText(String.format(Locale.US, "%s %.1f", context.getString(R.string.dollar), food.getPrice()));
         if (uuid != null) {
             firebaseFirestore.collection("cart").document(uuid).addSnapshotListener((value, error) -> {
                 if (value != null) {

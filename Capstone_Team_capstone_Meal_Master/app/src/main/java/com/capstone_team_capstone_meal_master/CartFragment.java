@@ -2,8 +2,11 @@ package com.capstone_team_capstone_meal_master;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
@@ -22,8 +25,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.capstone_team_capstone_meal_master.adapter.FoodAdapter;
+import com.capstone_team_capstone_meal_master.interfaces.onFoodItemClick;
+import com.capstone_team_capstone_meal_master.interfaces.onOrderPlaced;
 import com.capstone_team_capstone_meal_master.model.Cart;
 import com.capstone_team_capstone_meal_master.model.Food;
+import com.capstone_team_capstone_meal_master.model.Order;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -33,17 +39,27 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.WriteBatch;
+import com.paypal.android.sdk.payments.PayPalConfiguration;
+import com.paypal.android.sdk.payments.PayPalPayment;
+import com.paypal.android.sdk.payments.PayPalService;
+import com.paypal.android.sdk.payments.PaymentActivity;
+import com.paypal.android.sdk.payments.PaymentConfirmation;
+import com.paypal.android.sdk.payments.ProofOfPayment;
+
+import org.json.JSONException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-
 public class CartFragment extends Fragment {
+
     Cart cart;
     List<Food> foodItems;
     double total = 0, grandTotal = 0;
@@ -58,10 +74,29 @@ public class CartFragment extends Fragment {
     boolean isPointsApplied = false;
     RelativeLayout rlProgress;
     ProgressBar pBar;
+    PayPalConfiguration config;
+    onOrderPlaced listener;
+    ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+            PaymentConfirmation confirmation = result.getData().getParcelableExtra(PaymentActivity.EXTRA_RESULT_CONFIRMATION);
+            if (confirmation != null) {
+                ProofOfPayment proofOfPayment = confirmation.getProofOfPayment();
+                if (proofOfPayment != null) {
+                    if (proofOfPayment.getState().equalsIgnoreCase("approved")) {
+                        placeOrder(proofOfPayment.getPaymentId());
+                    } else {
+                        Toast.makeText(getContext(), "Unable to process payment", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Unable to process payment", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(getContext(), "Unable to process payment", Toast.LENGTH_SHORT).show();
+            }
+        }
+    });
 
-
-
-    public CartFragment(onOrderPlaced listener) {
+    public CartFragment(onOrderP laced listener) {
         this.listener = listener;
     }
 
@@ -110,7 +145,12 @@ public class CartFragment extends Fragment {
         llOffers = view.findViewById(R.id.llOffers);
         btCheckout.setOnClickListener(v -> {
             long point = isPointsApplied ? points : 0;
-
+            PayPalPayment payment = new PayPalPayment(new BigDecimal(String.valueOf(grandTotal - point)), "USD", "New Order",
+                    PayPalPayment.PAYMENT_INTENT_SALE);
+            Intent intent = new Intent(getContext(), PaymentActivity.class);
+            intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, config);
+            intent.putExtra(PaymentActivity.EXTRA_PAYMENT, payment);
+            launcher.launch(intent);
         });
         btApplyPoints.setOnClickListener(v -> {
             isPointsApplied = true;
@@ -128,13 +168,21 @@ public class CartFragment extends Fragment {
         rvCart.setNestedScrollingEnabled(true);
         rvCart.setLayoutManager(new LinearLayoutManager(getActivity()));
         rvCart.setAdapter(foodAdapter);
-
+        config = new PayPalConfiguration()
+                .environment(PayPalConfiguration.ENVIRONMENT_SANDBOX)
+                .clientId(getString(R.string.paypal_key));
         fetchCartData();
         return view;
     }
 
     private void toggleDiscount(boolean flag) {
-
+        if (flag) {
+            btRemovePoints.setVisibility(View.GONE);
+            btApplyPoints.setVisibility(View.GONE);
+            tvDiscountPoints.setText(R.string.no_points);
+        } else {
+            btApplyPoints.setVisibility(View.VISIBLE);
+        }
     }
 
     private void updateLabels() {
@@ -268,6 +316,4 @@ public class CartFragment extends Fragment {
             Toast.makeText(getContext(), "Unable to place an order.", Toast.LENGTH_SHORT).show();
         });
     }
-
-
 }
