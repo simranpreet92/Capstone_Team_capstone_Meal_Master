@@ -21,14 +21,18 @@ import com.capstone_team_capstone_meal_master.model.Cart;
 import com.capstone_team_capstone_meal_master.model.Food;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 
 public class CartFragment extends Fragment {
@@ -136,4 +140,83 @@ public class CartFragment extends Fragment {
             btApplyPoints.setVisibility(View.VISIBLE);
         }
     }
+    private void updateLabels() {
+        if (isPointsApplied) {
+            tvDiscount.setText("-" + points);
+            tvGrandTotal.setText(String.format(Locale.US, "%s %.1f", getContext().getString(R.string.dollar), grandTotal - points));
+        } else {
+            tvDiscount.setText("0");
+            tvGrandTotal.setText(String.format(Locale.US, "%s %.1f", getContext().getString(R.string.dollar), grandTotal));
+        }
+    }
+
+    public void fetchCartData() {
+        if (currentUser != null) {
+            String uid = currentUser.getUid();
+            if (!currentUser.isAnonymous()) {
+                firebaseFirestore.collection("discount").document(uid).get().addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null && task.getResult().contains("points")) {
+                        points = Math.round(Double.parseDouble(String.valueOf(task.getResult().get("points"))));
+                        tvDiscountPoints.setText(String.format(getString(R.string.available_points), points));
+                        toggleDiscount(points == 0);
+                    } else {
+                        toggleDiscount(false);
+                    }
+                });
+            } else {
+                llDiscount.setVisibility(View.GONE);
+                llOffers.setVisibility(View.GONE);
+            }
+            firebaseFirestore.collection("cart").document(uid).addSnapshotListener((value, error) -> {
+                if (value != null && value.exists()) {
+                    Map<String, Object> data = value.getData();
+                    if (data != null && data.size() > 0) {
+                        firebaseFirestore
+                                .collection("food")
+                                .whereIn("id", Arrays.asList(data.keySet().toArray()))
+                                .get()
+                                .addOnCompleteListener(task -> {
+                                    pBar.setVisibility(View.GONE);
+                                    foodItems.clear();
+                                    total = grandTotal = 0;
+                                    Map<Food, Integer> map = new HashMap<>();
+                                    if (task.isSuccessful() && task.getResult() != null) {
+                                        for (DocumentSnapshot ds : task.getResult().getDocuments()) {
+                                            Food food = ds.toObject(Food.class);
+                                            if (food != null) {
+                                                int quantity = Integer.parseInt(String.valueOf(data.get(food.getId())));
+                                                if (quantity > 0) {
+                                                    foodItems.add(food);
+                                                    map.put(food, quantity);
+                                                    total += food.getPrice() * quantity;
+                                                    grandTotal = total;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    cart.setCartItems(map);
+                                    foodAdapter.notifyDataSetChanged();
+                                    tvItemTotal.setText(String.format(Locale.US, "%s %.1f", getContext().getString(R.string.dollar), total));
+                                    updateLabels();
+                                    if (foodItems.size() > 0) {
+                                        rlProgress.setVisibility(View.GONE);
+                                        llContent.setVisibility(View.VISIBLE);
+                                    } else {
+                                        showEmptyCart();
+                                    }
+                                });
+                    } else {
+                        showEmptyCart();
+                    }
+                } else {
+                    showEmptyCart();
+                }
+            });
+        }
+
+    }
+    public void showEmptyCart() {
+
+    }
+
 }
