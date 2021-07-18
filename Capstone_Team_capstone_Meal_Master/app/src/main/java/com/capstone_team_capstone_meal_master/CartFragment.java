@@ -79,9 +79,7 @@ public class CartFragment extends Fragment {
             }
         });
     }
-    private void updateLabels() {
 
-    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -131,15 +129,7 @@ public class CartFragment extends Fragment {
         return view;
     }
 
-    private void toggleDiscount(boolean flag) {
-        if (flag) {
-            btRemovePoints.setVisibility(View.GONE);
-            btApplyPoints.setVisibility(View.GONE);
-            tvDiscountPoints.setText(R.string.no_points);
-        } else {
-            btApplyPoints.setVisibility(View.VISIBLE);
-        }
-    }
+
     private void updateLabels() {
         if (isPointsApplied) {
             tvDiscount.setText("-" + points);
@@ -214,6 +204,15 @@ public class CartFragment extends Fragment {
             });
         }
 
+    }
+    private void toggleDiscount(boolean flag) {
+        if (flag) {
+            btRemovePoints.setVisibility(View.GONE);
+            btApplyPoints.setVisibility(View.GONE);
+            tvDiscountPoints.setText(R.string.no_points);
+        } else {
+            btApplyPoints.setVisibility(View.VISIBLE);
+        }
     }
     public void showEmptyCart() {
 
