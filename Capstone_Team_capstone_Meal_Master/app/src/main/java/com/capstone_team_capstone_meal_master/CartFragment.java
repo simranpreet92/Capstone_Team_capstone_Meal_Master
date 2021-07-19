@@ -64,11 +64,11 @@ public class CartFragment extends Fragment {
     private final FirebaseUser currentUser = firebaseAuth.getCurrentUser();
     TextView tvItemTotal, tvGrandTotal, tvDiscountPoints, tvDiscount, tvNoItems;
     Button btApplyPoints, btRemovePoints, btCheckout;
-    LinearLayout llDiscount, llContent, llOffers;
+   // LinearLayout llDiscount, llContent, llOffers;
     long points = 0;
     boolean isPointsApplied = false;
     RelativeLayout rlProgress;
-    ProgressBar pBar;
+  //  ProgressBar pBar;
     //  PayPalConfiguration config;
     // onOrderPlaced listener;
 
