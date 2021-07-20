@@ -3,4 +3,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="dollar">$</string>
+    <string name="available_points">Available Points: %d</string>
+    <string name="no_points">No Discount points available</string>
+    <string name="paypal_key">AdJkLfc9OI_NhTqjPlSTnKG6qjW1iHoLhEtUqcdTFdBKx_jdxnyXx3Q2kt_lxiSVzlHF2AxCAY7gnp7R</string>
 </resources>
