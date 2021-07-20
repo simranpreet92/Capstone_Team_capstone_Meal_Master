@@ -44,13 +44,13 @@ public class HomeActivity extends AppCompatActivity {
             uid = user.getUid();
         }
         bottomNavigationView = findViewById(R.id.bottom_navigation);
-        categoryFragment = CategoryFragment.newInstance();
+        categoryFragment =new CategoryFragment();
         orderFragment = new OrderFragment();
         cartFragment = CartFragment.newInstance();
         fragmentManager.beginTransaction().add(R.id.flContent, cartFragment, "3").hide(cartFragment).commit();
         fragmentManager.beginTransaction().add(R.id.flContent, orderFragment, "2").hide(orderFragment).commit();
         fragmentManager.beginTransaction().add(R.id.flContent, categoryFragment, "1").commit();
-        activeFragment = categoryFragment;
+        activeFragment = orderFragment;
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             if (item.getItemId() == R.id.cart) {
                 setCurrentFragment(cartFragment);
@@ -70,6 +70,7 @@ public class HomeActivity extends AppCompatActivity {
             int sum = 0;
             if (value != null && value.exists() && value.getData() != null) {
                 Collection<Object> values = value.getData().values();
+
                 for (Object o : values) {
                     sum += Math.max(Integer.parseInt(String.valueOf(o)), 0);
                 }

@@ -45,9 +45,9 @@ public class CategoryFragment extends Fragment {
     public CategoryFragment() {
     }
 
-    public static CategoryFragment newInstance() {
-        return new CategoryFragment();
-    }
+//    public static CategoryFragment newInstance() {
+//        return new CategoryFragment();
+//    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
