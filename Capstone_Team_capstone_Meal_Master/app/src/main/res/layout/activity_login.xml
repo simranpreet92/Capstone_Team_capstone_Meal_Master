@@ -101,12 +101,12 @@
         android:onClick="login"
         android:layout_height="wrap_content"/>
 
-    <Button
+  <!--  <Button
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:onClick="continueAsGuest"
         android:layout_marginTop="10dp"
-        android:text="Continue as Guest" />
+        android:text="Continue as Guest" />-->
 </LinearLayout>
