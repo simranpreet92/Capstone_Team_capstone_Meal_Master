@@ -10,6 +10,8 @@ public class Food {
    // private Category category;
 
 
+    public Food() {
+    }
 
     public Food(String category, String id, String name, String url, double price) {
         this.category = category;

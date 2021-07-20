@@ -72,6 +72,9 @@ public class CartFragment extends Fragment {
     //  PayPalConfiguration config;
     // onOrderPlaced listener;
 
+    public static CartFragment newInstance() {
+        return new CartFragment();
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
