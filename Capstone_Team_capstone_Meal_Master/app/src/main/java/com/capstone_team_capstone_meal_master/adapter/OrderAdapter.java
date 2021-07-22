@@ -17,7 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
-
+import java.util.Map;
 
 public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHolder> {
 
@@ -31,7 +31,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         this.orders = orders;
     }
 
-
+    @NonNull
     @Override
     public OrderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new OrderViewHolder(LayoutInflater.from(context).inflate(R.layout.single_row_order, parent, false));
@@ -47,16 +47,22 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             holder.tvConfirmed.setVisibility(View.GONE);
             holder.tvIncomplete.setVisibility(View.VISIBLE);
         }
+        holder.tvPaymentId.setText(order.getPaymentId());
+        holder.tvOrderId.setText(String.valueOf(order.getOrder_id()));
+        holder.tvOrderedOn.setText(formatter.format(order.getTimestamp().toDate()));
+        holder.tvOrderTotal.setText(String.format(Locale.US, "%s %.1f", context.getString(R.string.dollar), order.getGrandTotal() - order.getDiscount()));
+        Map<String, Integer> foodItems = order.getFoodItems();
+        final StringBuilder stringBuilder = new StringBuilder();
     }
 
     @Override
     public int getItemCount() {
         {
             return orders.size();
+        }
     }
 
-
-    public static class OrderViewHolder extends RecyclerView.ViewHolder {
+   public static class OrderViewHolder extends RecyclerView.ViewHolder {
 
         TextView tvOrderTotal, tvOrderId, tvOrderItems, tvOrderedOn, tvPaymentId, tvConfirmed, tvIncomplete;
 

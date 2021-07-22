@@ -67,7 +67,7 @@ public class OrderFragment extends Fragment {
         return view;
     }
 
-    private void fetchOrders() {
+    public void fetchOrders() {
         if (currentUser != null) {
             firebaseFirestore
                     .collection("order")
