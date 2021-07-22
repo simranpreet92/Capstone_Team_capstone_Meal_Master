@@ -14,16 +14,17 @@ import com.capstone_team_capstone_meal_master.model.Order;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
+import java.text.SimpleDateFormat;
 import java.util.List;
-
+import java.util.Locale;
 
 
 public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHolder> {
 
-   Context context;
+    Context context;
     List<Order> orders;
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
-
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy, MMMM dd EEEE hh:mm a", Locale.CANADA);
 
     public OrderAdapter(Context context, List<Order> orders) {
         this.context = context;
@@ -43,7 +44,8 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
 
     @Override
     public int getItemCount() {
-        return 0;
+        {
+            return orders.size();
     }
 
 
