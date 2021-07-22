@@ -62,8 +62,11 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful() && task.getResult() != null)
                         {
+                            String name = String.valueOf(task.getResult().get("name"));
+                            stringBuilder.append(String.format(Locale.CANADA, "%d X %s ", map.getValue(), name));
+                            holder.tvOrderItems.setText(stringBuilder.toString());
                         }
-                    });  
+                    });
                         }
                     }
 
