@@ -18,6 +18,7 @@ import com.capstone_team_capstone_meal_master.model.Food;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -70,6 +71,12 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
     @Override
     public int getItemCount() {
         return foodItems.size();
+    }
+
+    public void filetredList(ArrayList<Food> filterlist) {
+
+        foodItems = filterlist;
+        notifyDataSetChanged();
     }
 
     public static class FoodViewHolder extends RecyclerView.ViewHolder {

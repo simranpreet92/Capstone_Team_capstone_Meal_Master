@@ -42,6 +42,8 @@ public class CategoryFragment extends Fragment {
     private final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     TextView tvAvailableItems;
 
+
+
     public CategoryFragment() {
     }
 
@@ -52,6 +54,7 @@ public class CategoryFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         foodItems = new ArrayList<>();
         filteredFoodItems = new ArrayList<>();
         final FirebaseUser currentUser = firebaseAuth.getCurrentUser();
@@ -76,6 +79,11 @@ public class CategoryFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_category, container, false);
+
+        RecyclerView rvFoodItems = view.findViewById(R.id.rvFoodItems);
+        rvFoodItems.setLayoutManager(new LinearLayoutManager(getActivity()));
+        rvFoodItems.setAdapter(foodAdapter);
+
         EditText etSearch = view.findViewById(R.id.etSearch);
         tvAvailableItems = view.findViewById(R.id.tvAvailableItems);
         etSearch.addTextChangedListener(new TextWatcher(){
@@ -86,28 +94,29 @@ public class CategoryFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String textVisible = s.toString().trim().toLowerCase();
-                filteredFoodItems.clear();
-                for (Food f : foodItems) {
-                    if (textVisible.isEmpty() || f.getName().contains(textVisible)) {
-                        filteredFoodItems.add(f);
-                    }
-                }
-                if (filteredFoodItems.isEmpty())
-                    Toast.makeText(getContext(), "No Items to show", Toast.LENGTH_SHORT).show();
-                tvAvailableItems.setText(String.format(Locale.CANADA, "Displaying %d items", filteredFoodItems.size()));
-                foodAdapter.notifyDataSetChanged();
+
             }
 
             @Override
             public void afterTextChanged(Editable s) {
+                filter(s.toString());
 
             }
         });
-        RecyclerView rvFoodItems = view.findViewById(R.id.rvFoodItems);
-        rvFoodItems.setLayoutManager(new LinearLayoutManager(getActivity()));
-        rvFoodItems.setAdapter(foodAdapter);
         return view;
+
+    }
+
+    private void filter(String text) {
+        ArrayList<Food> filterlist = new ArrayList<>();
+
+        for (Food f : foodItems) {
+            if (f.getName().toLowerCase().contains(text.toLowerCase()))
+                filterlist.add(f);
+            tvAvailableItems.setText(String.format(Locale.CANADA, "Displaying %d items", filterlist.size()));
+        }
+        foodAdapter.filetredList(filterlist);
+
     }
 
     public void fetchCategoryData() {
