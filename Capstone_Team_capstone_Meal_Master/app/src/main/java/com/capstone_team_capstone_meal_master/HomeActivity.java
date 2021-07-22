@@ -50,7 +50,7 @@ public class HomeActivity extends AppCompatActivity {
         fragmentManager.beginTransaction().add(R.id.flContent, cartFragment, "3").hide(cartFragment).commit();
         fragmentManager.beginTransaction().add(R.id.flContent, orderFragment, "2").hide(orderFragment).commit();
         fragmentManager.beginTransaction().add(R.id.flContent, categoryFragment, "1").commit();
-        activeFragment = orderFragment;
+        activeFragment = categoryFragment;
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             if (item.getItemId() == R.id.cart) {
                 setCurrentFragment(cartFragment);
