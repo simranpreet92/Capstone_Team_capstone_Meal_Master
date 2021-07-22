@@ -86,6 +86,13 @@ public class OrderFragment extends Fragment {
                                 }
                                 orderAdapter.notifyDataSetChanged();
                             }
+                            if (orders.isEmpty()) {
+                                tvNoOrder.setVisibility(View.VISIBLE);
+                                rvOrder.setVisibility(View.GONE);
+                            }
+                        } else {
+                            tvNoOrder.setVisibility(View.VISIBLE);
+                            rvOrder.setVisibility(View.GONE);
 
                         }
 
