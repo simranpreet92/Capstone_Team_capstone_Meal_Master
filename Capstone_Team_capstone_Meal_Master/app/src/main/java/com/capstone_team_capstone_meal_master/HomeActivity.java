@@ -15,6 +15,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.paypal.android.sdk.payments.PayPalConfiguration;
+import com.paypal.android.sdk.payments.PayPalService;
 
 import java.util.Collection;
 
@@ -35,6 +37,7 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        initPaypal();
         btLogout = findViewById(R.id.btLogout);
         user = auth.getCurrentUser();
         if (user == null) {
@@ -46,7 +49,7 @@ public class HomeActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         categoryFragment =new CategoryFragment();
         orderFragment = new OrderFragment();
-        cartFragment = CartFragment.newInstance();
+        cartFragment = new CartFragment(() -> setCurrentFragment(orderFragment));
         fragmentManager.beginTransaction().add(R.id.flContent, cartFragment, "3").hide(cartFragment).commit();
         fragmentManager.beginTransaction().add(R.id.flContent, orderFragment, "2").hide(orderFragment).commit();
         fragmentManager.beginTransaction().add(R.id.flContent, categoryFragment, "1").commit();
@@ -80,6 +83,14 @@ public class HomeActivity extends AppCompatActivity {
         flContent = findViewById(R.id.flContent);
     }
 
+    public void initPaypal() {
+        PayPalConfiguration config = new PayPalConfiguration()
+                .environment(PayPalConfiguration.ENVIRONMENT_SANDBOX)
+                .clientId(getString(R.string.paypal_key));
+        Intent intent = new Intent(this, PayPalService.class);
+        intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, config);
+        startService(intent);
+    }
     public void logout(View view) {
         auth.signOut();
         startActivity(new Intent(this, LoginActivity.class));

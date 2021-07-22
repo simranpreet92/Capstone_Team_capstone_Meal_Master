@@ -26,10 +26,10 @@ import android.widget.Toast;
 
 import com.capstone_team_capstone_meal_master.adapter.FoodAdapter;
 import com.capstone_team_capstone_meal_master.interfaces.onFoodItemClick;
-
+import com.capstone_team_capstone_meal_master.interfaces.onOrderPlaced;
 import com.capstone_team_capstone_meal_master.model.Cart;
 import com.capstone_team_capstone_meal_master.model.Food;
-
+import com.capstone_team_capstone_meal_master.model.Order;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,7 +40,12 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
-
+import com.paypal.android.sdk.payments.PayPalConfiguration;
+import com.paypal.android.sdk.payments.PayPalPayment;
+import com.paypal.android.sdk.payments.PayPalService;
+import com.paypal.android.sdk.payments.PaymentActivity;
+import com.paypal.android.sdk.payments.PaymentConfirmation;
+import com.paypal.android.sdk.payments.ProofOfPayment;
 
 import org.json.JSONException;
 
@@ -93,10 +98,6 @@ public class CartFragment extends Fragment {
 
     public CartFragment(onOrderPlaced listener) {
         this.listener = listener;
-    }
-
-    public static CartFragment newInstance(onOrderPlaced listener) {
-        return new CartFragment(listener);
     }
 
     @Override
