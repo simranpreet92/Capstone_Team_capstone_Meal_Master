@@ -39,7 +39,14 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
 
     @Override
     public void onBindViewHolder(@NonNull OrderAdapter.OrderViewHolder holder, int position) {
-
+        Order order = orders.get(position);
+        if (order.getStatus().equalsIgnoreCase("confirmed")) {
+            holder.tvConfirmed.setVisibility(View.VISIBLE);
+            holder.tvIncomplete.setVisibility(View.GONE);
+        } else {
+            holder.tvConfirmed.setVisibility(View.GONE);
+            holder.tvIncomplete.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
