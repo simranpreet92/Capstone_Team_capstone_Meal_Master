@@ -17,6 +17,7 @@ import com.capstone_team_capstone_meal_master.adapter.OrderAdapter;
 import com.capstone_team_capstone_meal_master.model.Order;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -65,8 +66,30 @@ public class OrderFragment extends Fragment {
         rvOrder.setAdapter(orderAdapter);
         return view;
     }
+
     private void fetchOrders() {
+        if (currentUser != null) {
+            firebaseFirestore
+                    .collection("order")
+                    .whereEqualTo("uid", currentUser.getUid())
+                    .addSnapshotListener((value, error) -> {
+                        pBar.setVisibility(View.GONE);
+                        orders.clear();
+                        if (value != null && !value.isEmpty()) {
+                            rvOrder.setVisibility(View.VISIBLE);
+                            tvNoOrder.setVisibility(View.GONE);
+                            List<DocumentSnapshot> documents = value.getDocuments();
+                            for (DocumentSnapshot ds : documents) {
+                                Order order = ds.toObject(Order.class);
+                                if (order != null) {
+                                    orders.add(order);
+                                }
+                                orderAdapter.notifyDataSetChanged();
+                            }
 
+                        }
+
+                    });
+        }
     }
-
 }
