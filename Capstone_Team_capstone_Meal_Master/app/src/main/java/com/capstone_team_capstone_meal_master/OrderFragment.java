@@ -38,6 +38,10 @@ public class OrderFragment extends Fragment {
     }
 
 
+    public static OrderFragment newInstance() {
+
+        return new OrderFragment();
+    }
 
 
     @Override
