@@ -53,7 +53,19 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         holder.tvOrderTotal.setText(String.format(Locale.US, "%s %.1f", context.getString(R.string.dollar), order.getGrandTotal() - order.getDiscount()));
         Map<String, Integer> foodItems = order.getFoodItems();
         final StringBuilder stringBuilder = new StringBuilder();
-    }
+        for (Map.Entry<String, Integer> map : foodItems.entrySet()) {
+            String key = map.getKey();
+            firebaseFirestore
+                    .collection("food")
+                    .document(key)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && task.getResult() != null)
+                        {
+                        }
+                    });  
+                        }
+                    }
 
     @Override
     public int getItemCount() {
