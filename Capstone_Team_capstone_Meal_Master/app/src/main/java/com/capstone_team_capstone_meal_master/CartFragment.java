@@ -69,19 +69,34 @@ public class CartFragment extends Fragment {
     boolean isPointsApplied = false;
     RelativeLayout rlProgress;
     ProgressBar pBar;
-
+    PayPalConfiguration config;
+    onOrderPlaced listener;
     ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
         if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-            Toast.makeText(getContext(), "Working", Toast.LENGTH_SHORT).show();
+            PaymentConfirmation confirmation = result.getData().getParcelableExtra(PaymentActivity.EXTRA_RESULT_CONFIRMATION);
+            if (confirmation != null) {
+                ProofOfPayment proofOfPayment = confirmation.getProofOfPayment();
+                if (proofOfPayment != null) {
+                    if (proofOfPayment.getState().equalsIgnoreCase("approved")) {
+                        placeOrder(proofOfPayment.getPaymentId());
+                    } else {
+                        Toast.makeText(getContext(), "Unable to process payment", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Unable to process payment", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(getContext(), "Unable to process payment", Toast.LENGTH_SHORT).show();
+            }
         }
     });
 
-    public CartFragment() {
-
+    public CartFragment(onOrderPlaced listener) {
+        this.listener = listener;
     }
 
-    public static CartFragment newInstance() {
-        return new CartFragment();
+    public static CartFragment newInstance(onOrderPlaced listener) {
+        return new CartFragment(listener);
     }
 
     @Override
@@ -125,7 +140,12 @@ public class CartFragment extends Fragment {
         llOffers = view.findViewById(R.id.llOffers);
         btCheckout.setOnClickListener(v -> {
             long point = isPointsApplied ? points : 0;
-
+            PayPalPayment payment = new PayPalPayment(new BigDecimal(String.valueOf(grandTotal - point)), "USD", "New Order",
+                    PayPalPayment.PAYMENT_INTENT_SALE);
+            Intent intent = new Intent(getContext(), PaymentActivity.class);
+            intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, config);
+            intent.putExtra(PaymentActivity.EXTRA_PAYMENT, payment);
+            launcher.launch(intent);
         });
         btApplyPoints.setOnClickListener(v -> {
             isPointsApplied = true;
@@ -143,7 +163,9 @@ public class CartFragment extends Fragment {
         rvCart.setNestedScrollingEnabled(true);
         rvCart.setLayoutManager(new LinearLayoutManager(getActivity()));
         rvCart.setAdapter(foodAdapter);
-
+        config = new PayPalConfiguration()
+                .environment(PayPalConfiguration.ENVIRONMENT_SANDBOX)
+                .clientId(getString(R.string.paypal_key));
         fetchCartData();
         return view;
     }
@@ -241,5 +263,52 @@ public class CartFragment extends Fragment {
         tvNoItems.setVisibility(View.VISIBLE);
     }
 
+    public void placeOrder(String paymentId) {
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        if (currentUser == null) return;
+        DocumentReference reference = firebaseFirestore.collection("order_id").document("id");
+        firebaseFirestore.runTransaction(transaction -> {
+            DocumentSnapshot snapshot = transaction.get(reference);
+            Map<String, Object> map = new HashMap<>();
+            int order_id = -1;
+            if (snapshot.exists()) {
+                order_id = Integer.parseInt(String.valueOf(snapshot.get("id"))) + 1;
+            } else {
+                order_id = 1;
+            }
+            map.put("id", order_id);
+            transaction.set(reference, map);
+            points = isPointsApplied ? points : 0;
+            Map<String, Integer> foodItems = new HashMap<>();
+            Map<Food, Integer> cartItems = cart.getCartItems();
+            for (Map.Entry<Food, Integer> entry : cartItems.entrySet()) {
+                foodItems.put(entry.getKey().getId(), entry.getValue());
+            }
+            Order order = new Order(isPointsApplied, points, total, grandTotal - points, order_id, Timestamp.now(), foodItems, currentUser.getUid(), "confirmed", paymentId);
+            transaction.set(firebaseFirestore.collection("order").document(), order);
 
+            if (!currentUser.isAnonymous()) {
+                map.clear();
+                double points_earned = Math.ceil((grandTotal - points) / 100.0);
+                map.put("points", FieldValue.increment(points_earned - points));
+                transaction.set(firebaseFirestore.collection("discount").document(currentUser.getUid()), map, SetOptions.merge());
+            }
+            return null;
+        }).addOnSuccessListener(o -> {
+
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+            builder.setTitle("Congrats");
+            builder.setMessage("Your Order has been placed successfully");
+            builder.setCancelable(false);
+            builder.setPositiveButton("Ok", (dialog, which) ->
+            {
+                firebaseFirestore.collection("cart").document(currentUser.getUid()).delete();
+                listener.onOrderPlaced();
+            });
+            builder.show();
+        }).addOnFailureListener(e -> {
+            Log.d("MYMSG", e.getMessage());
+            Toast.makeText(getContext(), "Unable to place an order.", Toast.LENGTH_SHORT).show();
+        });
+    }
 }
