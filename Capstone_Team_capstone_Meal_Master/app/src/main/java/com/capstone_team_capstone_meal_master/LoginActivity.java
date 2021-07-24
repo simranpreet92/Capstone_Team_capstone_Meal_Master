@@ -36,7 +36,14 @@ public class LoginActivity extends AppCompatActivity {
             if (task.isSuccessful()) {
                 startActivity(new Intent(this, HomeActivity.class));
                 finish();
-            } 
+            }
+            else {
+                String msg = "An unknown error occurred.";
+                if (task.getException() != null) {
+                    msg = task.getException().getMessage();
+                }
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
