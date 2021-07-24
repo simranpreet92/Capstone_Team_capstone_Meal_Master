@@ -22,7 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder> {
+public class
+FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder> {
 
     List<Food> foodItems;
     Context context;
@@ -63,6 +64,7 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
                     holder.imbMinus.setEnabled(count != 0);
                 }
             });
+            //quantity of food
             holder.imbMinus.setOnClickListener(v -> listener.onItemClick(position, -1));
             holder.imbPlus.setOnClickListener(v -> listener.onItemClick(position, +1));
         }
