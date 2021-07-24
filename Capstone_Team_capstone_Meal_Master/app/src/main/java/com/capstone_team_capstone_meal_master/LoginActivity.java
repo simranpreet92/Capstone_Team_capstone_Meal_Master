@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,8 +32,12 @@ public class LoginActivity extends AppCompatActivity {
 
 
     public void continueAsGuest(View view) {
-        startActivity(new Intent(this, HomeActivity.class));
-        finish();
+        FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                startActivity(new Intent(this, HomeActivity.class));
+                finish();
+            } 
+        });
     }
 
     public void login(View view) {
