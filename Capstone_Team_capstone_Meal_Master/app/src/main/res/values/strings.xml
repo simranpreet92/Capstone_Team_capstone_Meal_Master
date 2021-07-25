@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Capstone_Team_capstone_Meal_Master</string>
+    <string name="app_name">Meal Master</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="dollar">$</string>
