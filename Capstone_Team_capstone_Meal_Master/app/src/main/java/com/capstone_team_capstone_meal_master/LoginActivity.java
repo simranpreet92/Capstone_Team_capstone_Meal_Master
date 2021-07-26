@@ -43,14 +43,17 @@ import com.paypal.android.sdk.payments.PaymentActivity;
 import com.paypal.android.sdk.payments.PaymentConfirmation;
 import com.paypal.android.sdk.payments.ProofOfPayment;
 
-public class LoginActivity extends AppCompatActivity {
+import java.util.Arrays;
+import java.util.HashMap;
 
+public class LoginActivity extends AppCompatActivity {
 
     EditText etEmail, etPassword;
     FirebaseAuth auth = FirebaseAuth.getInstance();
+    LinearLayout llContent;
+    ProgressBar pBar;
     ImageView signInButton, loginButton;
-
-
+    CallbackManager callbackManager = CallbackManager.Factory.create();
     ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
         if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
@@ -69,7 +72,33 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
         }
     });
+
+    public void createPointsIfNotPresent(String uid) {
+        Log.d("MYMSG", "in points");
+        FirebaseFirestore instance = FirebaseFirestore.getInstance();
+        instance.collection("discount").document(uid).get().addOnCompleteListener(task -> {
+            toggleLoading(false);
+            if (task.isSuccessful() && task.getResult() != null) {
+                if (!task.getResult().exists()) {
+                    HashMap<String, Object> map = new HashMap<>();
+                    map.put("points", 10);
+                    instance.collection("discount").document(uid).set(map);
+                    startActivity(new Intent(this, HomeActivity.class));
+                    finish();
+                } else {
+                    startActivity(new Intent(this, HomeActivity.class));
+                    finish();
+                }
+            } else {
+                startActivity(new Intent(this, HomeActivity.class));
+                finish();
+            }
+        });
+
+    }
+
     private void firebaseAuthWithCustomProvider(AuthCredential credential) {
+        toggleLoading(true);
         auth.signInWithCredential(credential)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful() && task.getResult().getUser() != null) {
@@ -77,27 +106,28 @@ public class LoginActivity extends AppCompatActivity {
                         Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
                     } else {
                         String msg = task.getException() != null ? task.getException().getMessage() : "Authentication failed";
+                        toggleLoading(false);
                         Toast.makeText(LoginActivity.this, msg,
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
-    private void createPointsIfNotPresent(String uid) {
-    }
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        FacebookSdk.sdkInitialize(this);
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
-
+        llContent = findViewById(R.id.llContent);
+        pBar = findViewById(R.id.pBar);
+        llContent = findViewById(R.id.llContent);
+        loginButton = findViewById(R.id.fb_button);
         signInButton = findViewById(R.id.sign_in_button);
-
+        toggleLoading(false);
         signInButton.setOnClickListener((l) -> {
-
+            toggleLoading(true);
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                     .requestIdToken("176348668580-4v7t5atc41bjlveoo9llijatou42u18v.apps.googleusercontent.com")
                     .requestEmail()
@@ -105,34 +135,64 @@ public class LoginActivity extends AppCompatActivity {
             GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, gso);
             Intent signInIntent = googleSignInClient.getSignInIntent();
             launcher.launch(signInIntent);
-
+            toggleLoading(false);
         });
 
+        loginButton.setOnClickListener((l) -> {
+            LoginManager.getInstance().logIn(LoginActivity.this, Arrays.asList("email", "public_profile"));
+        });
+        LoginManager.getInstance().registerCallback(callbackManager,
+                new FacebookCallback<LoginResult>() {
+                    @Override
+                    public void onSuccess(LoginResult loginResult) {
+                        // App code
+                        toggleLoading(true);
+                        firebaseAuthWithCustomProvider(FacebookAuthProvider.getCredential(loginResult.getAccessToken().getToken()));
+                    }
 
+                    @Override
+                    public void onCancel() {
+                        // App code
+
+                    }
+
+                    @Override
+                    public void onError(FacebookException exception) {
+                    
+                    }
+                });
 
     }
 
-    
+    public void toggleLoading(boolean isLoading) {
+        if (isLoading) {
+            llContent.setVisibility(View.GONE);
+            pBar.setVisibility(View.VISIBLE);
+        } else {
+            llContent.setVisibility(View.VISIBLE);
+            pBar.setVisibility(View.GONE);
+        }
 
+    }
 
     public void continueAsGuest(View view) {
+        toggleLoading(true);
         FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 startActivity(new Intent(this, HomeActivity.class));
                 finish();
-            }
-            else {
+            } else {
                 String msg = "An unknown error occurred.";
                 if (task.getException() != null) {
                     msg = task.getException().getMessage();
                 }
                 Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+                toggleLoading(false);
             }
         });
     }
 
     public void login(View view) {
-
         String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
         if (email.isEmpty() || password.isEmpty()) {
@@ -140,16 +200,18 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        toggleLoading(true);
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                 finish();
             } else {
-                String exception = "";
+                toggleLoading(false);
+                String exception = "An unknown error occurred.";
                 if (task.getException() != null) {
                     exception = task.getException().getMessage();
                 }
-                Snackbar.make(findViewById(android.R.id.content), exception, Snackbar.LENGTH_SHORT).show();
+                Toast.makeText(this, exception, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -157,6 +219,11 @@ public class LoginActivity extends AppCompatActivity {
 
     public void openRegisterActivity(View view) {
         startActivity(new Intent(this, SignUpActivity.class));
-        finish();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }
