@@ -158,7 +158,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(FacebookException exception) {
-                    
+
                     }
                 });
 

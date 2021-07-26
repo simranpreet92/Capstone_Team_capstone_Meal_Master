@@ -6,4 +6,6 @@
     <string name="available_points">Available Points: %d</string>
     <string name="no_points">No Discount points available</string>
     <string name="paypal_key">AdJkLfc9OI_NhTqjPlSTnKG6qjW1iHoLhEtUqcdTFdBKx_jdxnyXx3Q2kt_lxiSVzlHF2AxCAY7gnp7R</string>
+    <string name="facebook_app_id">349050856867337</string>
+    <string name="fb_login_protocol_scheme">fb349050856867337</string>
 </resources>
