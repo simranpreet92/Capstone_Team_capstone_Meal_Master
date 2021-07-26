@@ -145,6 +145,13 @@
                 android:background="@drawable/google"
                 android:layout_marginRight="20dp" />
 
+            <ImageView
+                android:id="@+id/fb_button"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginLeft="20dp"
+                android:background="@drawable/facebook" />
+
 
         </LinearLayout>
     </LinearLayout>
