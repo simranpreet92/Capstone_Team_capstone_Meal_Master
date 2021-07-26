@@ -153,7 +153,9 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onCancel() {
                         // App code
-
+                        toggleLoading(false);
+                        Toast.makeText(LoginActivity.this, "Authentication failed.",
+                                Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
