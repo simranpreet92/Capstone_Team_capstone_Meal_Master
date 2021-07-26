@@ -160,6 +160,11 @@ public class LoginActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(FacebookException exception) {
+                        // App code
+                        Log.d("MYMSG", exception.toString());
+                        toggleLoading(false);
+                        Toast.makeText(LoginActivity.this, "Authentication failed.",
+                                Toast.LENGTH_SHORT).show();
 
                     }
                 });
