@@ -50,7 +50,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         holder.tvPaymentId.setText(order.getPaymentId());
         holder.tvOrderId.setText(String.valueOf(order.getOrder_id()));
         holder.tvOrderedOn.setText(formatter.format(order.getTimestamp().toDate()));
-        holder.tvOrderTotal.setText(String.format(Locale.US, "%s %.1f", context.getString(R.string.dollar), order.getGrandTotal() - order.getDiscount()));
+        holder.tvOrderTotal.setText(String.format(Locale.US, "%s %.1f", context.getString(R.string.dollar), order.getGrandTotal()));
         Map<String, Integer> foodItems = order.getFoodItems();
         final StringBuilder stringBuilder = new StringBuilder();
         for (Map.Entry<String, Integer> map : foodItems.entrySet()) {

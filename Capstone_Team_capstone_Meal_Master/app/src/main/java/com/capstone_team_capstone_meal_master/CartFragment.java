@@ -198,6 +198,10 @@ public class CartFragment extends Fragment {
                 firebaseFirestore.collection("discount").document(uid).get().addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null && task.getResult().contains("points")) {
                         points = Math.round(Double.parseDouble(String.valueOf(task.getResult().get("points"))));
+                        if(points < 0)
+                        {
+                            points = 0;
+                        }
                         tvDiscountPoints.setText(String.format(getString(R.string.available_points), points));
                         toggleDiscount(points == 0);
                     } else {
@@ -285,7 +289,7 @@ public class CartFragment extends Fragment {
             for (Map.Entry<Food, Integer> entry : cartItems.entrySet()) {
                 foodItems.put(entry.getKey().getId(), entry.getValue());
             }
-            Order order = new Order(isPointsApplied, points, total, grandTotal - points, order_id, Timestamp.now(), foodItems, currentUser.getUid(), "confirmed", paymentId);
+            Order order = new Order(isPointsApplied, points, total, total - points, order_id, Timestamp.now(), foodItems, currentUser.getUid(), "confirmed", paymentId);
             transaction.set(firebaseFirestore.collection("order").document(), order);
 
             if (!currentUser.isAnonymous()) {
